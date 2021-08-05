@@ -1,25 +1,31 @@
 // https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/
 
+import static java.lang.Math.*;
+
 class Solution {
 
     public int maxProfit(int[] prices) {
-        int [] tailMax = tailMax(prices);
-        int buy = prices[0], max = Integer.MIN_VALUE;
-        for (int i = 0; i < prices.length; i++) {
-            max = Math.max(max, (prices[i] - buy) + (i == tailMax.length - 1 ? 0 : tailMax[i + 1]));
-            buy = Math.min(buy, prices[i]);
+        int [] maxProfitsStartingAt = findMaxProfitsStartingAt(prices);
+        int buyAt = prices[0], maxProfit = 0;
+        for (int current = 0; current < prices.length; current++) {
+            buyAt = min(buyAt, prices[current]);
+            int next = current + 1;
+            int maxProfitStartingAtNext = next < maxProfitsStartingAt.length ? maxProfitsStartingAt[next] : 0;
+            int currentProfit = prices[current] - buyAt;
+            maxProfit = max(maxProfit, currentProfit + maxProfitStartingAtNext);
         }
-        return max;
+        return maxProfit;
     }
 
-    private int [] tailMax(int [] prices) {
-        int [] tailMax = new int [prices.length];
-        int sell = prices[prices.length - 1], max = Integer.MIN_VALUE;
-        for (int i = prices.length - 1; i >= 0; i--) {
-            max = Math.max(max, sell - prices[i]);
-            sell = Math.max(sell, prices[i]);
-            tailMax[i] = max;
+    private int [] findMaxProfitsStartingAt(int [] prices) {
+        int [] maxProfitsStartingAt = new int [prices.length];
+        int sellAt = prices[prices.length - 1], maxProfit = 0;
+        for (int current = prices.length - 1; current >= 0; current--) {
+            sellAt = Math.max(sellAt, prices[current]);
+            int currentProfit = sellAt - prices[current];
+            maxProfit = max(maxProfit, currentProfit);
+            maxProfitsStartingAt[current] = maxProfit;
         }
-        return tailMax;
+        return maxProfitsStartingAt;
     }
 }
